@@ -1,0 +1,14 @@
+.env
+tmp
+*.exe
+kana.exe~
+*.test
+.air.toml
+
+.DS_Store
+.vscode/
+
+.env
+uploads/
+
+Makefile
