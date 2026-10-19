@@ -1,14 +1,16 @@
 package repository
 
 import (
-  "context"
-  "github.com/kai-zenn/backend_iot_absensi/internal/entity"
+	"context"
+
+	"github.com/google/uuid"
+	"github.com/kai-zenn/backend_iot_absensi/internal/entity"
 )
 
 type IUserRepository interface {
   FindByUsername(ctx context.Context, username string) (*entity.User, error)
-  FindByID(ctx context.Context, id uint64) (*entity.User, error)
-  Create(ctx context.Context, u *entity.User) (id uint64, err error)
+  FindByID(ctx context.Context, id uuid.UUID) (*entity.User, error)
+  Create(ctx context.Context, u *entity.User) (id uuid.UUID, err error)
 }
 
 type ISessionRepository interface {

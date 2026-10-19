@@ -1,8 +1,9 @@
 package postgres
 
 import (
-	"github.com/kai-zenn/backend_iot_absensi/internal/repository"
+	"github.com/google/uuid"
 	"github.com/kai-zenn/backend_iot_absensi/internal/entity"
+	"github.com/kai-zenn/backend_iot_absensi/internal/repository"
 
 	"gorm.io/gorm"
 
@@ -24,9 +25,10 @@ func (r *userRepositoryImpl) FindByUsername(ctx context.Context, username string
   if err != nil {
     return nil, err
   }
+  return &user, err
 }
 
-func (r *userRepositoryImpl) FindByID(ctx context.Context, id uint64) (*entity.User, error) {
+func (r *userRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
   var user entity.User
 
   err := r.db.WithContext(ctx).Where("id = ?", id).First(&user).Error
@@ -36,6 +38,9 @@ func (r *userRepositoryImpl) FindByID(ctx context.Context, id uint64) (*entity.U
   return &user, nil
 }
 
-func (r *userRepositoryImpl) Create(ctx context.Context, u *entity.User) (id uint64, err error) {
-  
+func (r *userRepositoryImpl) Create(ctx context.Context, u *entity.User) (id uuid.UUID, err error) {
+  if err := r.db.WithContext(ctx).Create(u).Error; err != nil {
+    return uuid.Nil, err
+  }
+  return u.ID, nil
 }
