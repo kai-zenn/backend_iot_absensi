@@ -119,3 +119,46 @@ func (sr *studentRepoImpl) BulkUpsertFromImport(ctx context.Context, rows []enti
 
   return len(rows), nil, nil
 }
+
+type classRepositoryImpl struct {
+  db *gorm.DB
+}
+
+func NewClassRepository(db *gorm.DB) repository.IClassRepository {
+  return &classRepositoryImpl{db: db}
+}
+
+func (cr *classRepositoryImpl) List(ctx context.Context) ([]entity.Class, error) {
+  var class []entity.Class
+
+  err := cr.db.WithContext(ctx).Order("name DESC").Find(&class).Error
+  if err != nil {
+    return nil, err
+  }
+
+  return class, nil
+}
+
+func (cr *classRepositoryImpl) FindByName(ctx context.Context, name string) (*entity.Class, error) {
+  var class entity.Class
+  
+	err := cr.db.WithContext(ctx).Where("name = ?", name).First(&class).Error
+	if err != nil {
+		return nil, err
+	}
+  
+	return &class, nil
+}
+
+
+func (cr *classRepositoryImpl) Create(ctx context.Context, name string) (id uuid.UUID, err error) {
+  newClass := entity.Class{
+		Name: name,
+	}
+  
+	if err := cr.db.WithContext(ctx).Create(&newClass).Error; err != nil {
+		return uuid.Nil, err
+	}
+  
+	return newClass.ID, nil
+}
