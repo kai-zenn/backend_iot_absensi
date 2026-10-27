@@ -8,6 +8,25 @@ import (
 	"github.com/kai-zenn/backend_iot_absensi/internal/entity"
 )
 
+type IAttendanceEventRepository interface {
+    // TryInsert diimplementasikan dengan:
+    //   db.Clauses(clause.OnConflict{
+    //       Columns:   []clause.Column{{Name: "device_id"}, {Name: "event_id"}},
+    //       DoNothing: true,
+    //   }).Create(&event)
+    // Cek result.RowsAffected: 0 berarti conflict (alreadyExisted=true) — lanjutkan
+    // dengan db.Where("device_id = ? AND event_id = ?", ...).First(&existing) untuk
+    // mengambil row LAMA, dipakai membandingkan cardUid/occurredAt (deteksi
+    // EVENT_ID_CONFLICT, lihat 4a).
+    TryInsert(ctx context.Context, event *entity.AttendanceEvent) (*entity.AttendanceEvent, bool, error)
+
+    UpdateResult(ctx context.Context, eventID uuid.UUID, result string, studentID *uuid.UUID, attendanceID *uuid.UUID, clockSkewSeconds *int) error
+
+    // ListNeedsReview memanfaatkan idx_attendance_events_needs_review.
+    ListNeedsReview(ctx context.Context, limit, offset int) ([]entity.AttendanceEvent, int64, error)
+
+    ListByFilter(ctx context.Context, from, to time.Time, result *string, limit, offset int) ([]entity.AttendanceEvent, int64, error)
+}
 
 type IAttendanceRepository interface {
     CreateCheckIn(ctx context.Context, a *entity.Attendance) (uuid.UUID, bool, error)

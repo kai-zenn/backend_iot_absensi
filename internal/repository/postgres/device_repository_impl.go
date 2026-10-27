@@ -57,7 +57,7 @@ func (dr *deviceRepositoryImpl) List(ctx context.Context) ([]entity.Device, erro
   return gawai, nil
 }
 
-func (dr *deviceRepositoryImpl) Create(ctx context.Context, d *entity.Device) (id uuid.UUID, err error) {
+func (dr *deviceRepositoryImpl) Create(ctx context.Context, d *entity.Device) (uuid.UUID, error) {
   if err := dr.db.WithContext(ctx).Create(d).Error; err != nil {
 		return uuid.Nil, err
 	}

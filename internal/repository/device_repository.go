@@ -14,7 +14,7 @@ type IDeviceRepository interface {
   FindByCode(ctx context.Context, code string) (*entity.Device, error)
   List(ctx context.Context) ([]entity.Device, error)
 
-  Create(ctx context.Context, d *entity.Device) (id uuid.UUID, err error)
+  Create(ctx context.Context, d *entity.Device) (uuid.UUID, error)
   UpdateAPIKeyHash(ctx context.Context, deviceID uuid.UUID, newHash string) error
   UpdateStatus(ctx context.Context, deviceID uuid.UUID, status string) error
 

@@ -87,7 +87,7 @@ func (sr *studentRepoImpl) CountActive(ctx context.Context, classID *uuid.UUID) 
   return int(activeCount), err
 }
 
-func (sr *studentRepoImpl) Create(ctx context.Context, s *entity.Student) (id uuid.UUID, err error) {
+func (sr *studentRepoImpl) Create(ctx context.Context, s *entity.Student) (uuid.UUID, error) {
   if err := sr.db.WithContext(ctx).Create(s).Error; err != nil {
     return uuid.Nil, err
   }
@@ -105,7 +105,7 @@ func (sr *studentRepoImpl) Update(ctx context.Context, s *entity.Student) error 
   return nil
 }
 
-func (sr *studentRepoImpl) BulkUpsertFromImport(ctx context.Context, rows []entity.Student) (successCount int, failures []dto.ImportRowError, err error) {
+func (sr *studentRepoImpl) BulkUpsertFromImport(ctx context.Context, rows []entity.Student) (int, []dto.ImportRowError, error) {
   if len(rows) == 0 {
     return 0, nil, nil
   }
@@ -151,7 +151,7 @@ func (cr *classRepositoryImpl) FindByName(ctx context.Context, name string) (*en
 }
 
 
-func (cr *classRepositoryImpl) Create(ctx context.Context, name string) (id uuid.UUID, err error) {
+func (cr *classRepositoryImpl) Create(ctx context.Context, name string) (uuid.UUID, error) {
   newClass := entity.Class{
 		Name: name,
 	}

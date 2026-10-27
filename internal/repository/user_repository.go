@@ -10,7 +10,7 @@ import (
 type IUserRepository interface {
   FindByUsername(ctx context.Context, username string) (*entity.User, error)
   FindByID(ctx context.Context, id uuid.UUID) (*entity.User, error)
-  Create(ctx context.Context, u *entity.User) (id uuid.UUID, err error)
+  Create(ctx context.Context, u *entity.User) (uuid.UUID, error)
 }
 
 type ISessionRepository interface {

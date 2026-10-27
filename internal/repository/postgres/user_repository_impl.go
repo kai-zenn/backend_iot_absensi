@@ -38,7 +38,7 @@ func (ur *userRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*enti
   return &user, nil
 }
 
-func (ur *userRepositoryImpl) Create(ctx context.Context, u *entity.User) (id uuid.UUID, err error) {
+func (ur *userRepositoryImpl) Create(ctx context.Context, u *entity.User) (uuid.UUID, error) {
   if err := ur.db.WithContext(ctx).Create(u).Error; err != nil {
     return uuid.Nil, err
   }
