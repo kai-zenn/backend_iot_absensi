@@ -12,6 +12,90 @@ import (
 )
 
 
+type attendaceEventRepositoryImpl struct {
+  db *gorm.DB
+}
+
+func NewAttendanceEventRepository(db *gorm.DB) repository.IAttendanceEventRepository {
+  return &attendaceEventRepositoryImpl{db: db}
+}
+
+func (ae *attendaceEventRepositoryImpl) TryInsert(ctx context.Context, event *entity.AttendanceEvent) (*entity.AttendanceEvent, bool, error) {
+  result := ae.db.WithContext(ctx).Clauses(clause.OnConflict{
+    Columns: []clause.Column{{Name: "device_id"}, {Name: "event_id"}},
+    DoNothing: true,
+  }).Create(event)
+
+  if result.Error != nil {
+    return nil, false, result.Error
+  }
+
+  if result.RowsAffected == 0 {
+    var existing entity.AttendanceEvent
+
+    err := ae.db.WithContext(ctx).
+      Where("device_id = ? AND event_id = ?", event.DeviceID, event.EventID).
+      First(&existing).Error
+
+    return &existing, true, err
+  }
+
+  return event, false, nil
+}
+
+func (ae *attendaceEventRepositoryImpl) UpdateResult(ctx context.Context, eventID uuid.UUID, result string, studentID *uuid.UUID, attendanceID *uuid.UUID, clockSkewSeconds *int) error {
+  err := ae.db.WithContext(ctx).
+    Model(&entity.AttendanceEvent{}).
+    Where("id = ?", eventID).
+    Updates(map[string]any{
+      "result": result,
+      "student_id": studentID,
+      "attendance_id": attendanceID,
+      "clock_skew_second": clockSkewSeconds,
+    }).Error
+
+  return err
+}
+
+func (ae *attendaceEventRepositoryImpl) ListNeedsReview(ctx context.Context, limit, offset int) ([]entity.AttendanceEvent, int64, error) {
+  var events []entity.AttendanceEvent
+	var totalData int64
+  
+	q := ae.db.WithContext(ctx).Model(&entity.AttendanceEvent{}).
+		Where("result IN ?", []string{"UNKNOWN_CARD", "CARD_BLOCKED", "STUDENT_INACTIVE", "REJECTED_CLOCK"})
+  
+	if err := q.Count(&totalData).Error; err != nil {
+		return nil, 0, err
+	}
+  
+	if err := q.Order("created_at DESC").Limit(limit).Offset(offset).Find(&events).Error; err != nil {
+		return nil, 0, err
+	}
+  
+	return events, totalData, nil
+}
+
+func (ae *attendaceEventRepositoryImpl) ListByFilter(ctx context.Context, from, to time.Time, result *string, limit, offset int) ([]entity.AttendanceEvent, int64, error) {
+  var attendanceEvents []entity.AttendanceEvent
+  var totalData int64
+
+  q := ae.db.WithContext(ctx).Model(&entity.AttendanceEvent{}).
+    Where("occurred_at >= ? AND occurred_at <= ?", from, to)
+
+  if result != nil {
+    q = q.Where("result = ?", *result)
+  }
+
+  if err := q.Count(&totalData).Error; err != nil {
+    return nil, 0, err
+  }
+
+  if err := q.Order("occurred_at DESC").Limit(limit).Offset(offset).Find(&attendanceEvents).Error; err != nil {
+    return nil, 0, err
+  }
+
+  return attendanceEvents, totalData, nil
+}
 
 type attendanceRepositoryImpl struct {
 	db *gorm.DB
