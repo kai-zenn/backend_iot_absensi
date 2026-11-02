@@ -3,7 +3,7 @@ CREATE TABLE users (
     username       VARCHAR(50) NOT NULL,
     password_hash  VARCHAR(60) NOT NULL,   -- bcrypt, panjang tetap 60 char
     name           VARCHAR(100) NOT NULL,
-    role           VARCHAR(10) NOT NULL,    -- ADMIN | STAFF
+    role           VARCHAR(10) NOT NULL CHECK (role IN ('admin', 'staff')),
     is_active      BOOLEAN NOT NULL DEFAULT TRUE,
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );

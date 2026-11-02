@@ -1,18 +1,22 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"github.com/kai-zenn/backend_iot_absensi/internal/entity"
+)
 
 type LoginRequest struct {
-  Username string `json:"username" binding:"required"`
-  Password string `json:"password" binding:"required"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 type AuthenticatedUser struct {
-  ID   uuid.UUID `json:"id"`
-  Name string `json:"name"`
-  Role string `json:"role"` // ADMIN | STAFF
+	ID   uuid.UUID       `json:"id"`
+	Name string          `json:"name"`
+	Role entity.UserRole `json:"role"`
 }
 
 type LoginResponse struct {
-  User AuthenticatedUser `json:"user"`
+	Token string            `json:"token"`
+	User  AuthenticatedUser `json:"user"`
 }
