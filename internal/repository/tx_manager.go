@@ -11,7 +11,6 @@ type RepoSet struct {
 	Rule            IRuleRepository
 	Device          IDeviceRepository
 	User            IUserRepository
-	Session         ISessionRepository
 }
 
 type TxManager interface {

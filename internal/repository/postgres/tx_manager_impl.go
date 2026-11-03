@@ -27,7 +27,6 @@ func (t *txManagerImpl) WithinTx(ctx context.Context, fn func(repos repository.R
 			Rule:            NewRuleRepository(tx),
 			Device:          NewDeviceRepository(tx),
 			User:            NewUserRepository(tx),
-			Session:         NewSessionRepository(tx),
 		}
 
 		return fn(repos)

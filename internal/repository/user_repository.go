@@ -12,9 +12,3 @@ type IUserRepository interface {
   FindByID(ctx context.Context, id uuid.UUID) (*entity.User, error)
   Create(ctx context.Context, u *entity.User) (uuid.UUID, error)
 }
-
-type ISessionRepository interface {
-  Create(ctx context.Context, s *entity.Session) error
-  FindByTokenHash(ctx context.Context, tokenHash string) (*entity.Session, error)
-  Delete(ctx context.Context, tokenHash string) error
-}

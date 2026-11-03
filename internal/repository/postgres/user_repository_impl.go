@@ -44,31 +44,3 @@ func (ur *userRepositoryImpl) Create(ctx context.Context, u *entity.User) (uuid.
   }
   return u.ID, nil
 }
-
-// Storing User Session 
-type sessionRepositoryImpl struct {
-	db *gorm.DB
-}
-
-func NewSessionRepository(db *gorm.DB) repository.ISessionRepository {
-  return &sessionRepositoryImpl{db: db}
-}
-
-func (ser *sessionRepositoryImpl) Create(ctx context.Context, s *entity.Session) error {
-  return ser.db.WithContext(ctx).Create(entity.Session{}).Error
-}
-
-func (ser *sessionRepositoryImpl)	FindByTokenHash(ctx context.Context, tokenHash string) (*entity.Session, error){
-  var session entity.Session
-
-  err := ser.db.WithContext(ctx).Where("token_has = ?", tokenHash).First(&session).Error
-  if err != nil {
-    return nil, err
-  }
-
-  return &session, nil
-}
-
-func (ser *sessionRepositoryImpl)	Delete(ctx context.Context, tokenHash string) error {
-  return ser.db.WithContext(ctx).Where("token_hash = ?", tokenHash).Delete(&entity.Session{}).Error
-}
