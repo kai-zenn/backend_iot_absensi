@@ -25,28 +25,22 @@ type JWTInterface interface {
 type IAuthUsecase interface {
 	Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error)
 	Logout(ctx context.Context, tokenHash string) error
-	ValidateSession(ctx context.Context, rawToken string) (*dto.AuthenticatedUser, error)
 }
 
 type AuthUsecase struct {
 	userRepo    repository.IUserRepository
-	sessionRepo repository.ISessionRepository
-	sessionTTL  time.Duration
 	bcrypt      BcryptInterface
 	jwtAuth     JWTInterface
 }
 
 func NewAuthUseCase(
 	ur repository.IUserRepository,
-	sr repository.ISessionRepository,
 	ttl time.Duration,
 	bcrypt BcryptInterface,
 	jwt JWTInterface,
 ) IAuthUsecase {
 	return &AuthUsecase{
 		userRepo:    ur,
-		sessionRepo: sr,
-		sessionTTL:  ttl,
 		bcrypt:      bcrypt,
 		jwtAuth:     jwt,
 	}
@@ -84,18 +78,4 @@ func (au *AuthUsecase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Lo
 
 func (au *AuthUsecase) Logout(ctx context.Context, tokenHash string) error {
 	return nil
-}
-
-func (au *AuthUsecase) ValidateSession(ctx context.Context, rawToken string) (*dto.AuthenticatedUser, error) {
-	claims, err := au.jwtAuth.VerifyToken(rawToken)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := au.userRepo.FindByID(ctx, claims.UserId)
-	if err != nil {
-		return nil, errors.New("user tidak ada")
-	}
-
-	return &dto.AuthenticatedUser{ID: user.ID, Name: user.Name, Role: user.Role}, nil
 }
