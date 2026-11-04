@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/kai-zenn/backend_iot_absensi/internal/dto"
@@ -27,7 +26,7 @@ type IAuthUsecase interface {
 	Logout(ctx context.Context, tokenHash string) error
 }
 
-type AuthUsecase struct {
+type authUsecase struct {
 	userRepo    repository.IUserRepository
 	bcrypt      BcryptInterface
 	jwtAuth     JWTInterface
@@ -35,18 +34,17 @@ type AuthUsecase struct {
 
 func NewAuthUseCase(
 	ur repository.IUserRepository,
-	ttl time.Duration,
 	bcrypt BcryptInterface,
 	jwt JWTInterface,
 ) IAuthUsecase {
-	return &AuthUsecase{
+	return &authUsecase{
 		userRepo:    ur,
 		bcrypt:      bcrypt,
 		jwtAuth:     jwt,
 	}
 }
 
-func (au *AuthUsecase) Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error) {
+func (au *authUsecase) Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error) {
 	user, err := au.userRepo.FindByUsername(ctx, req.Username)
 	if err != nil {
 		return nil, errors.New("user tidak ada")
@@ -76,6 +74,6 @@ func (au *AuthUsecase) Login(ctx context.Context, req dto.LoginRequest) (*dto.Lo
 	}, nil
 }
 
-func (au *AuthUsecase) Logout(ctx context.Context, tokenHash string) error {
+func (au *authUsecase) Logout(ctx context.Context, tokenHash string) error {
 	return nil
 }
