@@ -6,17 +6,17 @@ import (
 )
 
 type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+  Username string `json:"username" binding:"required"`
+  Password string `json:"password" binding:"required"`
 }
 
 type AuthenticatedUser struct {
-	ID   uuid.UUID       `json:"id"`
-	Name string          `json:"name"`
-	Role entity.UserRole `json:"role"`
+  ID   uuid.UUID `json:"id"`
+  Name string `json:"name"`
+  Role entity.UserRole `json:"role"`
 }
 
 type LoginResponse struct {
-	Token string            `json:"token"`
-	User  AuthenticatedUser `json:"user"`
+  Token string `json:"token"`
+  User  AuthenticatedUser `json:"user"`
 }
