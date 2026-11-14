@@ -8,17 +8,17 @@ import (
 	"github.com/kai-zenn/backend_iot_absensi/internal/usecase"
 )
 
-type AuthHandler struct {
+type authHandler struct {
 	useCase usecase.IAuthUsecase
 }
 
-func NewAuthHandler(useCase usecase.IAuthUsecase) *AuthHandler {
-  return &AuthHandler{
+func NewAuthHandler(useCase usecase.IAuthUsecase) *authHandler {
+  return &authHandler{
     useCase: useCase,
   }
 }
 
-func (h *AuthHandler) Login(ctx *gin.Context) {
+func (h *authHandler) Login(ctx *gin.Context) {
   var req dto.LoginRequest
 
   err := ctx.ShouldBindJSON(&req)
