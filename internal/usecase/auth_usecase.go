@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/kai-zenn/backend_iot_absensi/internal/dto"
