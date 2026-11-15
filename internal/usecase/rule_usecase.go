@@ -34,12 +34,16 @@ func (ru *ruleUsecase) List(ctx context.Context) (*dto.ListRuleResponse, error){
   data := make([]dto.RuleItem, 0, len(rules))  
 
   for _, r := range rules {
-    createdBy := r.CreatedBy.String()
+    var createdBy *string
+    if r.CreatedBy != nil {
+      s := r.CreatedBy.String()
+      createdBy = &s
+    }
     data = append(data, dto.RuleItem{
       ID: r.ID.String(),
       EffectiveFrom: r.EffectiveFrom.Format("2006-01-02"),
       OnTimeUntil: r.OnTimeUntil.Format("15:04:05"),
-      CreatedBy: &createdBy,
+      CreatedBy: createdBy,
       CreatedAt: r.CreatedAt,
     })
   }
@@ -67,9 +71,5 @@ func (ru *ruleUsecase) Upsert(ctx context.Context, actorUserID uuid.UUID, req dt
     CreatedAt: time.Now(),
   }
 
-  if err := ru.ruleRepo.Upsert(ctx, &rule); err != nil {
-    return nil
-  }
-
-  return nil
+  return ru.ruleRepo.Upsert(ctx, &rule)
 }
