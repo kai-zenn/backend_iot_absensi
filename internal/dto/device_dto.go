@@ -29,8 +29,8 @@ type HeartbeatRequest struct {
 }
 
 type RuleSnapshot struct {
-  OnTimeUntil    string `json:"onTimeUntil"`    // "06:30:00"
-  TimezoneOffset string `json:"timezoneOffset"` // "+07:00"
+  OnTimeUntil    string `json:"onTimeUntil"`
+  TimezoneOffset string `json:"timezoneOffset"`
 }
 
 type HeartbeatResponse struct {
@@ -50,7 +50,7 @@ type DeviceStatusItem struct {
   DeviceCode      string     `json:"deviceCode"`
   Name            string     `json:"name"`
   Status          string     `json:"status"`
-  ConnectionState string     `json:"connectionState"` // ONLINE | DISCONNECTED (turunan, lihat 4c)
+  ConnectionState string     `json:"connectionState"`
   LastSeenAt      *time.Time `json:"lastSeenAt,omitempty"`
   PendingQueue    int        `json:"pendingQueue"`
 }
