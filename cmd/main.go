@@ -21,6 +21,8 @@ import (
 	bcryptpkg "github.com/kai-zenn/backend_iot_absensi/internal/pkgs/bcrypt"
 	"github.com/kai-zenn/backend_iot_absensi/internal/pkgs/helper"
 	jwtpkg "github.com/kai-zenn/backend_iot_absensi/internal/pkgs/jwt"
+	"github.com/kai-zenn/backend_iot_absensi/internal/seed"
+	"github.com/kai-zenn/backend_iot_absensi/migrations"
 	postgresDriver "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -72,6 +74,9 @@ func run() error {
 	if err := sqlDB.Ping(); err != nil {
 		return fmt.Errorf("ping PostgreSQL: %w", err)
 	}
+	if err := migrations.Up(sqlDB); err != nil {
+		return fmt.Errorf("run database migrations: %w", err)
+	}
 
 	engine := binding.Validator.Engine()
 	validate, ok := engine.(*validator.Validate)
@@ -86,6 +91,9 @@ func run() error {
 
 	bcryptService := bcryptpkg.NewCryptoBcrypt()
 	jwtService := jwtpkg.NewJWTToken(cfg.JWTSecret, cfg.JWTExpiry)
+	if err := seed.Run(db, bcryptService, cfg.AdminUsername, cfg.AdminPassword, cfg.AdminName); err != nil {
+		return fmt.Errorf("seed initial data: %w", err)
+	}
 
 	router := gin.New()
 	router.Use(gin.Recovery(), requestLogger())

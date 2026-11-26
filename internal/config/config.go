@@ -22,6 +22,9 @@ type Config struct {
 	DBSSLMode            string
 	JWTSecret            string
 	JWTExpiry            time.Duration
+	AdminUsername        string
+	AdminPassword        string
+	AdminName            string
 	SchoolTimezone       string
 	ClockFutureTolerance time.Duration
 	MaxEventAge          time.Duration
@@ -40,6 +43,9 @@ func LoadConf() (*Config, error) {
 		"DB_SSLMODE":             "disable",
 		"JWT_SECRET":             "",
 		"JWT_EXPIRY":             "24h",
+		"ADMIN_USERNAME":         "",
+		"ADMIN_PASSWORD":         "",
+		"ADMIN_NAME":             "",
 		"SCHOOL_TIMEZONE":        "Asia/Jakarta",
 		"CLOCK_FUTURE_TOLERANCE": "5m",
 		"MAX_EVENT_AGE":          "720h",
@@ -89,6 +95,9 @@ func LoadConf() (*Config, error) {
 		DBSSLMode:            viper.GetString("DB_SSLMODE"),
 		JWTSecret:            viper.GetString("JWT_SECRET"),
 		JWTExpiry:            jwtExpiry,
+		AdminUsername:        viper.GetString("ADMIN_USERNAME"),
+		AdminPassword:        viper.GetString("ADMIN_PASSWORD"),
+		AdminName:            viper.GetString("ADMIN_NAME"),
 		SchoolTimezone:       viper.GetString("SCHOOL_TIMEZONE"),
 		ClockFutureTolerance: clockFutureTolerance,
 		MaxEventAge:          maxEventAge,
