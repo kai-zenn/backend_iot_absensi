@@ -21,3 +21,7 @@ CREATE UNIQUE INDEX uidx_attendance_student_date ON attendance (student_id, atte
 
 CREATE INDEX idx_attendance_date ON attendance (attendance_date);
 CREATE INDEX idx_attendance_date_status ON attendance (attendance_date, check_in_status);
+
+ALTER TABLE attendance_events
+    ADD CONSTRAINT fk_attendance_events_attendance
+    FOREIGN KEY (attendance_id) REFERENCES attendance(id);

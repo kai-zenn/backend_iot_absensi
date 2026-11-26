@@ -13,7 +13,7 @@ CREATE TABLE attendance_events (
                          -- COMMIT di transaksi yang sama (lihat 4a); reader lain tidak
                          -- pernah melihat nilai ini (MVCC snapshot isolation Postgres).
     student_id           UUID REFERENCES students(id),
-    attendance_id        UUID REFERENCES attendance(id),
+    attendance_id        UUID,
     clock_skew_seconds   INT,                       -- hanya diisi untuk source=LIVE
     created_at           TIMESTAMPTZ NOT NULL DEFAULT now()
 );
