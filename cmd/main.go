@@ -17,11 +17,10 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/kai-zenn/backend_iot_absensi/internal/config"
+	"github.com/kai-zenn/backend_iot_absensi/internal/delivery"
 	bcryptpkg "github.com/kai-zenn/backend_iot_absensi/internal/pkgs/bcrypt"
 	"github.com/kai-zenn/backend_iot_absensi/internal/pkgs/helper"
 	jwtpkg "github.com/kai-zenn/backend_iot_absensi/internal/pkgs/jwt"
-	postgresrepo "github.com/kai-zenn/backend_iot_absensi/internal/repository/postgres"
-	"github.com/kai-zenn/backend_iot_absensi/internal/usecase"
 	postgresDriver "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -88,42 +87,6 @@ func run() error {
 	bcryptService := bcryptpkg.NewCryptoBcrypt()
 	jwtService := jwtpkg.NewJWTToken(cfg.JWTSecret, cfg.JWTExpiry)
 
-	txManager := postgresrepo.NewTxManager(db)
-	attendanceEventRepository := postgresrepo.NewAttendanceEventRepository(db)
-	attendanceRepository := postgresrepo.NewAttendanceRepository(db)
-	cardRepository := postgresrepo.NewCardRepository(db)
-	deviceRepository := postgresrepo.NewDeviceRepository(db)
-	ruleRepository := postgresrepo.NewRuleRepository(db)
-	studentRepository := postgresrepo.NewStudentRepository(db)
-	classRepository := postgresrepo.NewClassRepository(db)
-	userRepository := postgresrepo.NewUserRepository(db)
-
-	attendanceUsecase := usecase.NewAttendanceUsecase(
-		attendanceRepository,
-		attendanceEventRepository,
-		cardRepository,
-		studentRepository,
-		ruleRepository,
-		deviceRepository,
-		txManager,
-	)
-	deviceUsecase := usecase.NewDeviceUsecase(deviceRepository)
-	cardUsecase := usecase.NewCardUsecase(cardRepository, txManager)
-	studentUsecase := usecase.NewStudentUsecase(studentRepository, classRepository)
-	ruleUsecase := usecase.NewRuleUsecase(ruleRepository)
-	authUsecase := usecase.NewAuthUseCase(userRepository, bcryptService, jwtService)
-
-	// TODO: Delivery Layer Wiring (Handlers, Middlewares, & rest.go)
-	// Initialize AuthHandler, StudentHandler, RuleHandler, CardHandler,
-	// DeviceHandler, and AttendanceHandler, then mount their routes under /api/v1.
-	// Handler files and route wiring are placeholders until the delivery layer is ready.
-	_ = attendanceUsecase
-	_ = deviceUsecase
-	_ = cardUsecase
-	_ = studentUsecase
-	_ = ruleUsecase
-	_ = authUsecase
-
 	router := gin.New()
 	router.Use(gin.Recovery(), requestLogger())
 	router.GET("/healthz", func(c *gin.Context) {
@@ -133,6 +96,9 @@ func run() error {
 		}
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
+
+	rest := delivery.NewRest(router, db, jwtService, bcryptService)
+	rest.MountEndPoint()
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.AppPort,
