@@ -59,7 +59,7 @@ func (ru *ruleUsecase) Upsert(ctx context.Context, actorUserID uuid.UUID, req dt
     return err
   }
 
-  onTimeUntil, err := time.Parse("15:04:05", req.OnTimeUntil)
+  onTimeUntil, err := time.Parse("15:04", req.OnTimeUntil)
   if err != nil {
     return err
   }

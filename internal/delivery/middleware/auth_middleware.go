@@ -1,12 +1,15 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kai-zenn/backend_iot_absensi/internal/pkgs/helper"
 	"github.com/kai-zenn/backend_iot_absensi/internal/pkgs/jwt"
+	"github.com/kai-zenn/backend_iot_absensi/internal/repository"
 )
 
 func RequireRoles(allowedRoles ...string) gin.HandlerFunc {
@@ -21,7 +24,8 @@ func RequireRoles(allowedRoles ...string) gin.HandlerFunc {
 			return
 		}
 
-		isAllowed := slices.Contains(allowedRoles, userRole.(string))
+		role := fmt.Sprint(userRole)
+		isAllowed := slices.Contains(allowedRoles, role)
 
 		if !isAllowed {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
@@ -32,6 +36,33 @@ func RequireRoles(allowedRoles ...string) gin.HandlerFunc {
 			return
 		}
 
+		ctx.Next()
+	}
+}
+
+func AuthenticateDevice(deviceRepo repository.IDeviceRepository) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		apiKey := ctx.GetHeader("X-API-Key")
+		if apiKey == "" {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"status":  false,
+				"message": "API key perangkat tidak ditemukan",
+			})
+			ctx.Abort()
+			return
+		}
+
+		device, err := deviceRepo.FindByAPIKeyHash(ctx.Request.Context(), helper.HashAPIKey(apiKey))
+		if err != nil || device == nil || device.Status != "ACTIVE" {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"status":  false,
+				"message": "API key perangkat tidak valid",
+			})
+			ctx.Abort()
+			return
+		}
+
+		ctx.Set("device_id", device.ID)
 		ctx.Next()
 	}
 }

@@ -150,7 +150,17 @@ func (h *deviceHandler) Heartbeat(ctx *gin.Context) {
 		return
 	}
 
-	res, err := h.useCase.Heartbeat(ctx.Request.Context(), req.DeviceID, req)
+	deviceID, exists := DeviceIDFromContext(ctx)
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"status":  false,
+			"message": "Identitas perangkat tidak valid",
+		})
+		return
+	}
+	req.DeviceID = deviceID
+
+	res, err := h.useCase.Heartbeat(ctx.Request.Context(), deviceID, req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"status":  false,

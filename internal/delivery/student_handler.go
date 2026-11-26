@@ -89,16 +89,16 @@ func (h *studentHandler) Update(ctx *gin.Context) {
     return
   }
 
-  studentID, exist := ctx.Get("student_id")
-  if !exist {
-    ctx.JSON(http.StatusUnauthorized, gin.H{
+  studentID, err := uuid.Parse(ctx.Param("id"))
+  if err != nil {
+    ctx.JSON(http.StatusBadRequest, gin.H{
       "status": false,
-      "message": "Sesi anda tidak valid, silahkan login ulang",
+      "message": "ID siswa tidak valid",
     })
     return
   }
-  
-  err = h.useCase.Update(ctx.Request.Context(), studentID.(uuid.UUID), req)
+
+  err = h.useCase.Update(ctx.Request.Context(), studentID, req)
   if err != nil {
     ctx.JSON(http.StatusBadRequest, gin.H{
       "status": false,

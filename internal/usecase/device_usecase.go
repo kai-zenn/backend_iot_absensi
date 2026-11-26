@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"sort"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/kai-zenn/backend_iot_absensi/internal/dto"
@@ -29,9 +29,11 @@ type deviceUsecase struct {
 	ruleRepo   repository.IRuleRepository
 }
 
-func NewDeviceUsecase(dr repository.IDeviceRepository) IDeviceUsecase {
+func NewDeviceUsecase(dr repository.IDeviceRepository, cr repository.ICardRepository, rr repository.IRuleRepository) IDeviceUsecase {
   return &deviceUsecase{
     deviceRepo: dr,
+	cardRepo:   cr,
+	ruleRepo:   rr,
   }
 }
 
@@ -69,7 +71,7 @@ func (du *deviceUsecase) RegisterDevice(ctx context.Context, req dto.RegisterDev
   return &dto.DeviceCreatedResponse{
     ID: deviceId,
     DeviceCode: newDevice.DeviceCode,
-    APIKey: hashedApiKey,
+    APIKey: rawApiKey,
   }, nil
 }
 
@@ -177,9 +179,12 @@ func (du *deviceUsecase) Heartbeat(ctx context.Context, deviceID uuid.UUID, req 
 		return nil, err
 	}
 
-	snapShot, err := du.GetCardSnapshot(ctx)
+  snapShot, err := du.GetCardSnapshot(ctx)
+  if err != nil {
+    return nil, err
+  }
 
-	rule, err := du.ruleRepo.FindEffectiveForDate(ctx, now) 
+  rule, err := du.ruleRepo.FindEffectiveForDate(ctx, now)
 	onTimeUntil := "06:30:00"
 	if err == nil && rule != nil {
     onTimeUntil = rule.OnTimeUntil.Format("15:04:05")
