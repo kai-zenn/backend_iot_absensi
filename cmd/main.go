@@ -74,6 +74,35 @@ func run() error {
 	if err := sqlDB.Ping(); err != nil {
 		return fmt.Errorf("ping PostgreSQL: %w", err)
 	}
+
+	if len(os.Args) > 2 {
+		return errors.New("usage: go run ./cmd [migrate|seed|serve]")
+	}
+	command := "serve"
+	if len(os.Args) == 2 {
+		command = os.Args[1]
+	}
+	switch command {
+	case "migrate":
+		slog.Info("database migrations started")
+		if err := migrations.Up(sqlDB); err != nil {
+			return fmt.Errorf("run database migrations: %w", err)
+		}
+		slog.Info("database migrations completed")
+		return nil
+	case "seed":
+		slog.Info("database seeding started")
+		bcryptService := bcryptpkg.NewCryptoBcrypt()
+		if err := seed.Run(db, bcryptService, cfg.AdminUsername, cfg.AdminPassword, cfg.AdminName); err != nil {
+			return fmt.Errorf("seed initial data: %w", err)
+		}
+		slog.Info("database seeding completed")
+		return nil
+	case "serve":
+	default:
+		return fmt.Errorf("unknown command %q; use migrate, seed, or serve", command)
+	}
+
 	if err := migrations.Up(sqlDB); err != nil {
 		return fmt.Errorf("run database migrations: %w", err)
 	}
