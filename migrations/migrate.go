@@ -11,6 +11,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
+//go:embed *.up.sql
 var Files embed.FS
 
 func Up(db *sql.DB) error {
